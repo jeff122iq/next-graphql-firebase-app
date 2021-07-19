@@ -9,15 +9,16 @@ const cors = require("cors")
 const jwt = require("express-jwt")
 const JWT_SECRET = process.env.JWT_SECRET
 
-const typeDefs = require("./schema");
-const resolvers = require("./resolvers");
+const typeDefs = require("./src/schema");
+const resolvers = require("./src/resolvers");
 const { graphqlHTTP } = require('express-graphql');
-const { schema, root } = require("../src/schema/index")
+const { schema, root } = require("./src/schema")
 const { ApolloServer } = require("apollo-server-express");
 
 const auth = jwt({
   secret: JWT_SECRET,
   credentialsRequired: false,
+  algorithms: ['RS256']
 });
 app.use(auth);
 
