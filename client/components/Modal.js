@@ -31,6 +31,10 @@ const Modal = styled.div`
   min-height: 100vh;
   background: linear-gradient(90deg, rgba(191, 42, 239, 1) 0%, rgba(0, 0, 0, 0.5998774509803921) 0%);
   overflow: hidden;
+  position: absolute;
+  @media screen and (max-width: 768px) {
+    min-height: 90%;
+  }
 `
 
 export default Modal

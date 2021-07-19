@@ -2,6 +2,7 @@ import styled from "styled-components";
 import Page from "../layouts/Page";
 import Container from "../generick/Container";
 import Title from "../generick/Title";
+import { Link } from "../routes";
 
 const HomePAge = styled.div`
   width: 100%;

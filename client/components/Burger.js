@@ -7,6 +7,7 @@ const ResponsiveMenuButton = styled.div`
     max-width: 30px;
     display: flex;
     align-items: center;
+    z-index: 20;
 `
 
 const ResponsiveMenuButtonContainer = styled.div`
@@ -15,6 +16,9 @@ const ResponsiveMenuButtonContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  span {
+    transition: all 0.3s;
+  }
   &:hover {
     span:nth-of-type(1) {
       transform: rotate(45deg) translate(10px, 10px);
@@ -40,9 +44,9 @@ const ResponsiveMenuElement = styled.span`
   background-color: #ffffff;
 `
 
-export default function Burger() {
+export default function Burger({onBurgerClick}) {
   return (
-    <ResponsiveMenuButton>
+    <ResponsiveMenuButton onClick={onBurgerClick}>
       <ResponsiveMenuButtonContainer>
         <ResponsiveMenuElement/>
         <ResponsiveMenuElement/>

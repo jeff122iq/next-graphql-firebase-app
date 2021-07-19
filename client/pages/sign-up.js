@@ -8,6 +8,9 @@ import HelperText from "../generick/HelperText";
 import PageLink from "../generick/PageLink";
 import {useEffect, useState} from "react";
 import Modal from "../components/Modal";
+import {useMutation, useQuery} from "@apollo/client";
+import {REGISTER} from "../mutation/user";
+
 
 const SingUpPage = styled.div`
   width: 100%;
@@ -62,6 +65,17 @@ const FormContainer = styled.div`
   background: #938AFC;
   padding: 20px 50px;
   flex-direction: column;
+  @media screen and (max-width: 768px) {
+    width: 100%;
+  }
+  @media screen and (max-width: 375px) {
+    padding: 10px 30px;
+    margin: 20px 0;
+  }
+  @media screen and (max-width: 320px) {
+    padding: 15px;
+    margin: 20px 0;
+  }
 `
 
 const ImageContainer = styled.div`
@@ -71,11 +85,18 @@ const ImageContainer = styled.div`
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
 `
 
 export default function SignUp() {
 
   const [visibility, setVisibility] = useState(false)
+  const [newUser, {error}] = useMutation(REGISTER)
+  const [username, setUsername] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
 
   useEffect(() => {
     setTimeout(() => {
@@ -83,7 +104,26 @@ export default function SignUp() {
     }, 1000)
   }, [])
 
-  console.log(visibility)
+  useEffect(() => {
+    if (error) {
+      alert(error)
+    }
+  }, [error])
+
+  const addUser = (e) => {
+    e.preventDefault()
+    newUser({
+      variables: {
+          username, email, password
+      }
+    }).then(({data}) => {
+      console.log(data)
+    }).catch((error) => {
+      console.log(error)
+    })
+  }
+
+  console.log(username, email, password)
 
   return (
     <Page>
@@ -96,10 +136,26 @@ export default function SignUp() {
                   <Title>Sign-up</Title>
                   <HelperText>Have you account?&nbsp;<PageLink
                     href="/sign-in">Sign-in</PageLink>&nbsp;please!</HelperText>
-                  <Input type="text" placeholder="Username"/>
-                  <Input type="email" validate="none" placeholder="Email"/>
-                  <Input type="password" placeholder="Password"/>
-                  <Button>Sing-up</Button>
+                  <Input
+                    value={username}
+                    onChange={e => setUsername(e.target.value)}
+                    type="text"
+                    placeholder="Username"
+                  />
+                  <Input
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    type="email"
+                    validate="none"
+                    placeholder="Email"
+                  />
+                  <Input
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    type="password"
+                    placeholder="Password"
+                  />
+                  <Button onClick={addUser}>Sing-up</Button>
                 </FormContainer>
                 <ImageContainer/>
               </SignUpPageContainer>

@@ -5,6 +5,8 @@ import Link from "next/link";
 import authMenu from "../content/authMenu";
 import Burger from "./Burger";
 import Logo from "./Logo";
+import {useEffect, useState} from "react";
+import ResponsiveMenu from "./ResponsiveMenu";
 
 const PageHeader = styled.header`
   width: 100%;
@@ -34,30 +36,47 @@ const LinkName = styled.p`
 const AuthMenu = styled(NavMenu)``
 
 export default function Header() {
+  const [open, setOpen] = useState(false)
+
+  const handleOpen = () => {
+    setOpen((prev) => !prev)
+  }
+
+  const handleClose = () => {
+    setOpen(false)
+  }
+
+  useEffect(() => {
+    console.log('open', open)
+  }, [open])
+
   return (
-    <PageHeader>
-      <Container>
-        <Link href="/">
-          <Logo>
-            Logo
-          </Logo>
-        </Link>
-        <NavMenu>
-          {navMenu.map((item, idx) => {
-            return <Link key={idx} href={item.link}>
-              <LinkName>{item.name}</LinkName>
-            </Link>
-          })}
-        </NavMenu>
-        <Burger/>
-        <AuthMenu>
-          {authMenu.map((item, idx) => {
-            return <Link key={idx} href={item.link}>
-              <LinkName>{item.name}</LinkName>
-            </Link>
-          })}
-        </AuthMenu>
-      </Container>
-    </PageHeader>
+    <>
+      {open ? <ResponsiveMenu onModalClick={handleClose}/> : ""}
+      <PageHeader>
+        <Container>
+          <Link href="/">
+            <Logo>
+              Logo
+            </Logo>
+          </Link>
+          <NavMenu>
+            {navMenu.map((item, idx) => {
+              return <Link key={idx} href={item.link}>
+                <LinkName>{item.name}</LinkName>
+              </Link>
+            })}
+          </NavMenu>
+          <Burger onBurgerClick={handleOpen}/>
+          <AuthMenu>
+            {authMenu.map((item, idx) => {
+              return <Link key={idx} href={item.link}>
+                <LinkName>{item.name}</LinkName>
+              </Link>
+            })}
+          </AuthMenu>
+        </Container>
+      </PageHeader>
+    </>
   );
-};
+}
