@@ -1,5 +1,4 @@
 import Page from "../layouts/Page";
-import BottomElement from "../components/BottomElement";
 
 export default function Privacy() {
   return (
@@ -238,7 +237,6 @@ export default function Privacy() {
         Policy are effective when they are posted on this page.</p>
       <h1>Contact Us</h1>
       <p>If you have any questions about this Privacy Policy, You can contact us:</p>
-      <BottomElement/>
     </Page>
   );
 };
