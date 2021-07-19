@@ -62,6 +62,15 @@ const FormContainer = styled.div`
   background: #938AFC;
   padding: 20px 50px;
   flex-direction: column;
+  @media screen and (max-width: 768px) {
+    width: 100%;
+  }
+  @media screen and (max-width: 375px) {
+    padding: 10px 30px;
+  }
+  @media screen and (max-width: 320px) {
+    padding: 15px;
+  }
 `
 
 const ImageContainer = styled.div`
@@ -71,6 +80,9 @@ const ImageContainer = styled.div`
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
 `
 
 export default function SignUp() {
