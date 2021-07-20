@@ -14,6 +14,7 @@ const ResponsiveMenuBlock = styled.div`
     -webkit-animation-fill-mode: both;
     animation-fill-mode: both;
   }
+
   @-webkit-keyframes fadeInLeft {
     0% {
       opacity: 0;
@@ -60,6 +61,7 @@ const ResponsiveList = styled.ul`
   color: #ffffff;
   font-size: 30px;
   font-weight: 300;
+
   a {
     margin: 10px 0;
   }
@@ -79,20 +81,23 @@ export default function ResponsiveMenu({onModalClick}) {
       {visibility
         ?
         <ResponsiveMenuBlock>
-        <ResponsiveList>
-          <Logo>Logo</Logo>
-          {responsiveMenu.map((item, idx) => {
-            return (
-              <Link href={item.link} key={idx}>
-                {item.name}
-              </Link>
-            )
-          })}
-        </ResponsiveList>
-      </ResponsiveMenuBlock>
-      :
+          <ResponsiveList>
+            <Link href="/">
+              <Logo>Logo</Logo>
+            </Link>
+            {responsiveMenu.map((item, idx) => {
+              return (
+                <Link href={item.link} key={idx}>
+                  {item.name}
+                </Link>
+              )
+            })}
+          </ResponsiveList>
+        </ResponsiveMenuBlock>
+        :
         ""
       }
     </MenuModal>
   );
-};
+}
+;

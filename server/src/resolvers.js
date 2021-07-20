@@ -17,6 +17,9 @@ const resolvers = {
     async register(_, { username, email, password }) {
       const isEmail = await User.findOne({where: { email: email } })
       console.log(isEmail)
+      if (username === "" || email === "" || password === "") {
+        return Error("Fill in all the fields")
+      }
       if (isEmail) {
         return Error("User have an account!")
       }
@@ -33,17 +36,14 @@ const resolvers = {
     async login(_, { email, password }) {
       const user = await User.findOne({ where: { email } });
       if (!user) {
-        throw new Error(
+        throw Error(
           "This user doesn't exist. Please, make sure to type the right login."
         );
       }
-
       const valid = await bcrypt.compare(password, user.password);
-
       if (!valid) {
-        throw new Error("You password is incorrect!");
+        throw Error("You password is incorrect!");
       }
-
       return jsonwebtoken.sign({ id: user.id, username: user.username, email: user.email }, JWT_SECRET, {
         expiresIn: "1d",
       });

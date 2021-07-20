@@ -8,6 +8,11 @@ import HelperText from "../generick/HelperText";
 import PageLink from "../generick/PageLink";
 import {useEffect, useState} from "react";
 import Modal from "../components/Modal";
+import jwt_decode from "jwt-decode";
+
+import {useMutation, useQuery} from "@apollo/client";
+import {LOGIN, REGISTER} from "../mutation/user";
+import Loading from "../components/Loading";
 
 const SingUpPage = styled.div`
   width: 100%;
@@ -88,6 +93,10 @@ const ImageContainer = styled.div`
 export default function SignUp() {
 
   const [visibility, setVisibility] = useState(false)
+  const [isUser, {error}] = useMutation(LOGIN)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     setTimeout(() => {
@@ -95,7 +104,33 @@ export default function SignUp() {
     }, 1000)
   }, [])
 
-  console.log(visibility)
+  useEffect(() => {
+    if (error) {
+      alert(error)
+    }
+  }, [error])
+
+  const loginUser = (e) => {
+    e.preventDefault()
+    setLoading(true)
+    isUser({
+      variables: {
+        email, password
+      }
+    }).then(({data}) => {
+      const token = data.login
+      localStorage.setItem("token", token)
+      const decoded = jwt_decode(token, {payload: true})
+      if (!token) {
+        return
+      }
+      setLoading(false)
+      console.log(decoded)
+    }).catch((error) => {
+      console.log(error)
+      setLoading(false)
+    }).finally()
+  }
 
   return (
     <Page>
@@ -108,9 +143,21 @@ export default function SignUp() {
                   <Title>Sign-in</Title>
                   <HelperText>Don't have an account?&nbsp;<PageLink
                     href="/sign-up">Sign-up</PageLink>&nbsp;please!</HelperText>
-                  <Input type="email" validate="none" placeholder="Email"/>
-                  <Input type="password" placeholder="Password"/>
-                  <Button>Sing-in</Button>
+                  <Input
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    type="email"
+                    validate="none"
+                    placeholder="Email"
+                  />
+                  <Input
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    type="password"
+                    placeholder="Password"
+                  />
+                  <Button onClick={loginUser}>Sing-in</Button>
+                  {loading === true ? <Loading/> : ""}
                 </FormContainer>
                 <ImageContainer/>
               </SignUpPageContainer>
