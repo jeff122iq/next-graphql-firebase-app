@@ -10,13 +10,15 @@ import {useEffect, useState} from "react";
 import Modal from "../components/Modal";
 import {useMutation, useQuery} from "@apollo/client";
 import {REGISTER} from "../mutation/user";
-
+import Popup from "../components/Popup";
+import Loading from "../components/Loading";
+import {loadGetInitialProps} from "next/dist/next-server/lib/utils";
 
 const SingUpPage = styled.div`
   width: 100%;
   display: flex;
   justify-content: center;
-  margin: 100px 0;
+  margin: 100px 0 30px;
 `
 
 const SignUpPageContainer = styled(Container)`
@@ -80,7 +82,7 @@ const FormContainer = styled.div`
 
 const ImageContainer = styled.div`
   width: 50%;
-  height: 400px;
+  height: inherit;
   background-image: url("https://www.strategoweb.it/assets/blog_images/social.jpg");
   background-size: cover;
   background-position: center;
@@ -94,9 +96,12 @@ export default function SignUp() {
 
   const [visibility, setVisibility] = useState(false)
   const [newUser, {error}] = useMutation(REGISTER)
+  const [open, setOpen] = useState(false)
+  const [register, setRegister] = useState(false)
   const [username, setUsername] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     setTimeout(() => {
@@ -104,65 +109,74 @@ export default function SignUp() {
     }, 1000)
   }, [])
 
-  useEffect(() => {
-    if (error) {
-      alert(error)
-    }
-  }, [error])
+  console.log(error)
 
   const addUser = (e) => {
     e.preventDefault()
+    setLoading(true)
     newUser({
       variables: {
-          username, email, password
+        username, email, password
       }
-    }).then(({data}) => {
-      console.log(data)
+    }).then(() => {
+      setUsername("")
+      setEmail("")
+      setPassword("")
+      setLoading(false)
+      setRegister(true)
+      setOpen(!open)
     }).catch((error) => {
-      console.log(error)
+      setLoading(false)
+      setRegister(false)
+      return error
     })
   }
 
-  console.log(username, email, password)
+  console.log("OPEN", open)
 
   return (
-    <Page>
-      <Modal>
-        <SingUpPage>
-          {
-            visibility ?
-              <SignUpPageContainer>
-                <FormContainer>
-                  <Title>Sign-up</Title>
-                  <HelperText>Have you account?&nbsp;<PageLink
-                    href="/sign-in">Sign-in</PageLink>&nbsp;please!</HelperText>
-                  <Input
-                    value={username}
-                    onChange={e => setUsername(e.target.value)}
-                    type="text"
-                    placeholder="Username"
-                  />
-                  <Input
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    type="email"
-                    validate="none"
-                    placeholder="Email"
-                  />
-                  <Input
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    type="password"
-                    placeholder="Password"
-                  />
-                  <Button onClick={addUser}>Sing-up</Button>
-                </FormContainer>
-                <ImageContainer/>
-              </SignUpPageContainer>
-              : ""
-          }
-        </SingUpPage>
-      </Modal>
-    </Page>
+    <>
+      {error ? <Popup color="red" message={error.message} open={open} setOpen={setOpen}/> : ""}
+      {register ? <Popup color="green" message="Register success" open={register} setOpen={setRegister}/> : ""}
+      <Page>
+        <Modal>
+          <SingUpPage>
+            {
+              visibility ?
+                <SignUpPageContainer>
+                  <FormContainer>
+                    <Title>Sign-up</Title>
+                    <HelperText>Have you account?&nbsp;<PageLink
+                      href="/sign-in">Sign-in</PageLink>&nbsp;please!</HelperText>
+                    <Input
+                      value={username}
+                      onChange={e => setUsername(e.target.value)}
+                      type="text"
+                      placeholder="Username"
+                    />
+                    <Input
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      type="email"
+                      validate="none"
+                      placeholder="Email"
+                    />
+                    <Input
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      type="password"
+                      placeholder="Password"
+                    />
+                    <Button onClick={addUser}>Sing-up</Button>
+                  </FormContainer>
+                  <ImageContainer/>
+                </SignUpPageContainer>
+                : ""
+            }
+          </SingUpPage>
+          {loading === true ? <Loading/> : ""}
+        </Modal>
+      </Page>
+    </>
   );
 };
