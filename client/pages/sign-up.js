@@ -5,14 +5,17 @@ import Title from "../generick/Title";
 import Input from "../generick/Input";
 import Button from "../generick/Button";
 import HelperText from "../generick/HelperText";
-import PageLink from "../generick/PageLink";
 import {useEffect, useState} from "react";
 import Modal from "../components/Modal";
 import {useMutation, useQuery} from "@apollo/client";
 import {REGISTER} from "../mutation/user";
 import Popup from "../components/Popup";
 import Loading from "../components/Loading";
-import {loadGetInitialProps} from "next/dist/next-server/lib/utils";
+import {router} from "next/client";
+import Auth from "../store/authStore";
+import {observer} from "mobx-react-lite";
+import loaderStore from "../store/loaderStore";
+import Link from "next/link";
 
 const SingUpPage = styled.div`
   width: 100%;
@@ -92,7 +95,7 @@ const ImageContainer = styled.div`
   }
 `
 
-export default function SignUp() {
+export default observer(function SignUp() {
 
   const [visibility, setVisibility] = useState(false)
   const [newUser, {error}] = useMutation(REGISTER)
@@ -101,7 +104,7 @@ export default function SignUp() {
   const [username, setUsername] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
+  // const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     setTimeout(() => {
@@ -113,27 +116,32 @@ export default function SignUp() {
 
   const addUser = (e) => {
     e.preventDefault()
-    setLoading(true)
+    loaderStore.setIsLoading()
     newUser({
       variables: {
         username, email, password
       }
-    }).then(() => {
+    }).then(({data}) => {
+      console.log({data})
+      const token = data.register
+      localStorage.setItem("token", token)
+      if (!token) {
+        return
+      }
       setUsername("")
       setEmail("")
       setPassword("")
-      setLoading(false)
+      loaderStore.isLoading = false
       setRegister(true)
       setOpen(!open)
+      Auth.authenticate()
+      router.push(`/user/:id`)
     }).catch((error) => {
-      setLoading(false)
+      loaderStore.isLoading = false
       setRegister(false)
       return error
     })
   }
-
-  console.log("OPEN", open)
-
   return (
     <>
       {error ? <Popup color="red" message={error.message} open={open} setOpen={setOpen}/> : ""}
@@ -146,8 +154,8 @@ export default function SignUp() {
                 <SignUpPageContainer>
                   <FormContainer>
                     <Title>Sign-up</Title>
-                    <HelperText>Have you account?&nbsp;<PageLink
-                      href="/sign-in">Sign-in</PageLink>&nbsp;please!</HelperText>
+                    <HelperText>Have you account?&nbsp;<Link
+                      href="/sign-in">Sign-in</Link>&nbsp;please!</HelperText>
                     <Input
                       value={username}
                       onChange={e => setUsername(e.target.value)}
@@ -174,9 +182,9 @@ export default function SignUp() {
                 : ""
             }
           </SingUpPage>
-          {loading === true ? <Loading/> : ""}
+          {loaderStore.isLoading === true && <Loading/>}
         </Modal>
       </Page>
     </>
   );
-};
+});

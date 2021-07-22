@@ -9,10 +9,16 @@ import PageLink from "../generick/PageLink";
 import {useEffect, useState} from "react";
 import Modal from "../components/Modal";
 import jwt_decode from "jwt-decode";
+import Link from "next/link";
 
 import {useMutation, useQuery} from "@apollo/client";
 import {LOGIN, REGISTER} from "../mutation/user";
 import Loading from "../components/Loading";
+import {useRouter} from "next/router";
+import {observer} from "mobx-react-lite";
+import Auth from "../store/authStore";
+import loaderStore from "../store/loaderStore";
+import Popup from "../components/Popup";
 
 const SingUpPage = styled.div`
   width: 100%;
@@ -90,13 +96,15 @@ const ImageContainer = styled.div`
   }
 `
 
-export default function SignUp() {
+export default observer(function SignIn() {
 
   const [visibility, setVisibility] = useState(false)
   const [isUser, {error}] = useMutation(LOGIN)
+  const [login, setLogin] = useState(false)
+  const [open, setOpen] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     setTimeout(() => {
@@ -104,67 +112,69 @@ export default function SignUp() {
     }, 1000)
   }, [])
 
-  useEffect(() => {
-    if (error) {
-      alert(error)
-    }
-  }, [error])
-
   const loginUser = (e) => {
     e.preventDefault()
-    setLoading(true)
+    loaderStore.setIsLoading()
     isUser({
       variables: {
         email, password
       }
     }).then(({data}) => {
+      console.log({data})
       const token = data.login
       localStorage.setItem("token", token)
       const decoded = jwt_decode(token, {payload: true})
       if (!token) {
         return
       }
-      setLoading(false)
+      loaderStore.isLoading = false
+      setLogin(true)
       console.log(decoded)
+      Auth.authenticate()
+      router.push(`/user/:id`)
     }).catch((error) => {
       console.log(error)
-      setLoading(false)
+      loaderStore.isLoading = false
     }).finally()
   }
 
   return (
-    <Page>
-      <Modal>
-        <SingUpPage>
-          {
-            visibility ?
-              <SignUpPageContainer>
-                <FormContainer>
-                  <Title>Sign-in</Title>
-                  <HelperText>Don't have an account?&nbsp;<PageLink
-                    href="/sign-up">Sign-up</PageLink>&nbsp;please!</HelperText>
-                  <Input
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    type="email"
-                    validate="none"
-                    placeholder="Email"
-                  />
-                  <Input
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    type="password"
-                    placeholder="Password"
-                  />
-                  <Button onClick={loginUser}>Sing-in</Button>
-                  {loading === true ? <Loading/> : ""}
-                </FormContainer>
-                <ImageContainer/>
-              </SignUpPageContainer>
-              : ""
-          }
-        </SingUpPage>
-      </Modal>
-    </Page>
+    <>
+      {error ? <Popup color="red" message={error.message} open={open} setOpen={setOpen}/> : ""}
+      {login ? <Popup color="green" message="Login success" open={login} setOpen={setLogin}/> : ""}
+      <Page>
+        <Modal>
+          <SingUpPage>
+            {
+              visibility ?
+                <SignUpPageContainer>
+                  <FormContainer>
+                    <Title>Sign-in</Title>
+                    <HelperText>Don't have an account?&nbsp;<PageLink
+                      href="/sign-up">Sign-up</PageLink>&nbsp;please!</HelperText>
+                    <Input
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      type="email"
+                      validate="none"
+                      placeholder="Email"
+                    />
+                    <Input
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      type="password"
+                      placeholder="Password"
+                    />
+                    <Button onClick={loginUser}>Sing-in</Button>
+                    {loaderStore.isLoading && <Loading/>}
+                  </FormContainer>
+                  <ImageContainer/>
+                </SignUpPageContainer>
+                : ""
+            }
+          </SingUpPage>
+        </Modal>
+      </Page>
+    </>
   );
-};
+});
